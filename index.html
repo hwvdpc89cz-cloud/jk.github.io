@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>SeaBelStays Workflow</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">SBS</div>
+      <div>
+        <div class="brand-title">SeaBelStays Workflow</div>
+        <div class="brand-sub">Interactive booking → ID → check-in workflow + template generator</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn small" id="expandAllBtn">Expand all</button>
+      <button class="btn small ghost" id="collapseAllBtn">Collapse all</button>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <!-- LEFT -->
+    <aside class="panel">
+      <div class="panel-inner stack">
+
+        <div class="label">Unit</div>
+        <select class="select" id="propertySelect"></select>
+
+        <div class="label">Guest first name</div>
+        <input class="input" id="guestFirstName" placeholder="Guest first name" aria-label="Guest first name" />
+
+        <div class="row2">
+          <div>
+            <div class="label">Check-in</div>
+            <input class="input" id="checkInDate" type="date" />
+          </div>
+          <div>
+            <div class="label">Check-out</div>
+            <input class="input" id="checkOutDate" type="date" />
+          </div>
+        </div>
+
+        <div class="label">Date preview</div>
+        <input class="input" id="datePreview" disabled />
+
+        <label class="check">
+          <input type="checkbox" id="usePlaceholders" checked />
+          <div>Use placeholders ({Guest’s First Name} + MONTH DD - MONTH DD, YYYY)</div>
+        </label>
+
+        <div class="grid-btns">
+          <button class="btn" id="copyGreetingBtn">Copy greeting</button>
+          <button class="btn" id="copyDatesBtn">Copy dates</button>
+          <button class="btn" id="copyUnitBtn">Copy unit</button>
+          <button class="btn" id="copySignatureBtn">Copy signature</button>
+        </div>
+
+        <div class="section-title">Important Links</div>
+        <div class="section-sub">Always answer guests using these.</div>
+
+        <div class="link-grid">
+          <a class="btnlink" id="linkCoHost" target="_blank" rel="noopener">Co-Host Training Manual</a>
+          <a class="btnlink" id="linkCleanerChecklist" target="_blank" rel="noopener">Cleaner Checklist</a>
+          <a class="btnlink" id="linkInventory" target="_blank" rel="noopener">Inventory</a>
+          <a class="btnlink" id="linkTemplates" target="_blank" rel="noopener">Guest Templates</a>
+          <a class="btnlink" id="linkEvolveWorkflow" target="_blank" rel="noopener">Evolve Workflow</a>
+          <a class="btnlink" id="linkAllUnits" target="_blank" rel="noopener">Evolve All Units</a>
+        </div>
+
+        <div class="selected-links">
+          <div class="label">Selected unit links</div>
+          <div class="mini-list">
+            <a id="linkWelcome" target="_blank" rel="noopener">Welcome Message</a>
+            <a id="linkFaqs" target="_blank" rel="noopener">FAQs</a>
+            <a id="linkCheckin" target="_blank" rel="noopener">Check-in Instructions</a>
+            <a id="linkManual" target="_blank" rel="noopener">House Manual</a>
+          </div>
+
+          <div class="label" style="margin-top:12px;">Evolve Direct Links</div>
+          <div class="mini-list" id="evolveDirectList"></div>
+
+          <div class="label" style="margin-top:12px;">Quick preview</div>
+          <div class="template-box" id="quickCopyBox" style="margin-top:8px;"></div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- RIGHT -->
+    <main class="panel">
+      <div class="flow-head">
+        <div>
+          <h1>Workflow Diagram</h1>
+          <div class="sub">Click a step to expand → see instructions + generate SMS/Email.</div>
+        </div>
+        <div class="flow-actions">
+          <button class="btn small" id="expandAllBtn2">Expand all</button>
+          <button class="btn small ghost" id="collapseAllBtn2">Collapse all</button>
+        </div>
+      </div>
+
+      <div class="flow" id="flow"></div>
+
+      <!-- BELOW WORKFLOW: BOOKINGS SECTION -->
+      <section id="bookingTracker" class="tracker">
+        <div class="tracker-head">
+          <div>
+            <h2>Bookings & Guest Tracking</h2>
+            <p>Save bookings, tag status, and automate cleaner scheduling on check-out.</p>
+          </div>
+        </div>
+
+        <div class="tracker-dashboard" id="trackerDashboard">
+          <button class="dash-card danger" data-dash="NEEDS_ACTION">
+            <div class="dash-label">Needs action</div>
+            <div class="dash-value" id="dNeeds">0</div>
+            <div class="dash-sub">urgent today</div>
+          </button>
+          <button class="dash-card warn" data-dash="ARRIVING_SOON">
+            <div class="dash-label">Arriving soon</div>
+            <div class="dash-value" id="dSoon">0</div>
+            <div class="dash-sub">≤ 2 days</div>
+          </button>
+          <button class="dash-card" data-dash="WAITING_IDS">
+            <div class="dash-label">Waiting IDs</div>
+            <div class="dash-value" id="dIds">0</div>
+            <div class="dash-sub">ID / 2ID</div>
+          </button>
+          <button class="dash-card ok" data-dash="CONFIRMED">
+            <div class="dash-label">Confirmed</div>
+            <div class="dash-value" id="dOk">0</div>
+            <div class="dash-sub">ready</div>
+          </button>
+        </div>
+    
+
+        <div class="tracker-metrics">
+          <div class="metric"><div class="metric-label">Total</div><div class="metric-value" id="mTotal">0</div></div>
+          <div class="metric"><div class="metric-label">ID Requested</div><div class="metric-value" id="mIdReq">0</div></div>
+          <div class="metric"><div class="metric-label">2ID Requested</div><div class="metric-value" id="m2IdReq">0</div></div>
+          <div class="metric"><div class="metric-label">Reminders</div><div class="metric-value" id="mReminder">0</div></div>
+          <div class="metric"><div class="metric-label">Confirmed</div><div class="metric-value" id="mConfirmed">0</div></div>
+          <div class="metric"><div class="metric-label">Cancelled</div><div class="metric-value" id="mCancelled">0</div></div>
+        </div>
+
+        <div class="tracker-chart">
+          <div class="chart-title">Status distribution</div>
+          <div class="bars" id="statusBars"></div>
+        </div>
+
+        <div class="tracker-controls">
+          <input id="trackerSearch" class="input" placeholder="Search by guest or unit…" aria-label="Search bookings" />
+          <select id="trackerStatusFilter" class="select">
+            <option value="ALL">All statuses</option>
+            <option value="ID_REQUESTED">ID REQUESTED</option>
+            <option value="SECOND_ID_REQUESTED">2ID REQUESTED</option>
+            <option value="ID_REMINDER">REMINDER</option>
+            <option value="ID_ALTERNATE">ALTERNATIVE ID</option>
+            <option value="CANCELLED">CANCELLED BOOKING</option>
+            <option value="CONFIRMED">CONFIRMED BOOKING</option>
+          </select>
+
+          <div class="tracker-actions">
+            <button id="saveBookingBtn" class="btn secondary">Save current inputs</button>
+            <button id="notifyTestBtn" class="btn ghost">Test reminder</button>
+            <button id="connectGoogleBtn" class="btn">Connect Google Calendar</button>
+          </div>
+        </div>
+
+        <div class="tracker-table-wrap">
+          <table class="tracker-table">
+            <thead>
+              <tr>
+                <th>Guest</th>
+                <th>Unit</th>
+                <th>Check-in</th>
+                <th>Check-out</th>
+                <th>Status</th>
+                <th>Next action</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="trackerTbody"></tbody>
+          </table>
+        </div>
+
+        <div class="tracker-foot">
+          <div class="note">
+            <strong>Automation rules</strong>
+            <ul>
+              <li><b>CONFIRMED BOOKING</b> → creates “Cleaning – {Unit} – {Guest}” on check-out day.</li>
+              <li><b>CANCELLED BOOKING</b> → calendar event will not be created.</li>
+              <li><b>REMINDER</b> → notification scheduled 5 days before check-in (while page is open).</li>
+            </ul>
+          </div>
+
+          <details class="gcal-settings">
+            <summary>Google Calendar API settings (only set once)</summary>
+            <div class="gcal-grid">
+              <input id="gcalApiKey" class="input" placeholder="Google API Key" />
+              <input id="gcalClientId" class="input" placeholder="OAuth Client ID" />
+              <input id="gcalCalendarId" class="input" placeholder="Calendar ID (ex: primary)" value="primary" />
+            </div>
+            <p class="muted">
+              Google OAuth usually won’t work from <b>file://</b>. Run with <b>Live Server</b> and add your origin to
+              Google Cloud → Authorized JavaScript origins.
+            </p>
+          </details>
+        </div>
+      </section>
+    </main>
+
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
